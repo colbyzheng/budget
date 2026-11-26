@@ -10,8 +10,8 @@ Soft target: full v1 by ~Dec 3, 2026 (end of month at the latest).
 | 4 | M5 charts, budgets, net worth, $500 push alerts |
 | 5 | M6 passkey, demo, README, smoke test |
 
-## M0 — Docs + repo ✅ (in progress)
-SPEC.md, PLAN.md, CLAUDE.md, CONTEXT.md, README, .gitignore. Public GitHub repo `budget`.
+## M0 — Docs + repo ✅
+SPEC.md, PLAN.md, CLAUDE.md, CONTEXT.md, README, .gitignore. GitHub repo `budget` (private until M6).
 
 ## M1 — Scaffold
 Next.js (App Router) + TypeScript strict, Tailwind, Supabase Postgres, Drizzle ORM, Google sign-in

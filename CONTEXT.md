@@ -10,9 +10,9 @@ Colby is replacing his Google Sheet budget tracker with a single-user Next.js + 
 import. v2 = automatic bank sync.
 
 ## Status
-- **Active:** M0 docs + repo.
+- **Active:** M1 scaffold (M0 done: docs + private repo github.com/colbyzheng/budget, public at M6).
 - **Done:** product and plan grilling (all decisions are in SPEC.md).
-- **Next:** M1 scaffold (Next.js, Supabase, Drizzle, Google auth, CI, Vercel).
+- **Next:** M1 = Next.js, Supabase, Drizzle, Google auth, CI, Vercel.
 - **Open questions:** v2 sync provider (Teller / Plaid / iOS Shortcuts / CSV / Gmail); real app name before M6.
 
 ## Key decisions cheat-sheet
