@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# PreToolUse(Bash) hook: blocks `gh pr merge` unless docs/MERGE_GUARDRAILS.md steps 2-5 hold
+# PreToolUse(Bash) hook: blocks `gh pr merge` unless docs/MERGE_GUARDRAILS.md steps 1-5 hold
 # for the PR's current content. Any other command passes through untouched. Fails closed.
 set -uo pipefail
 
@@ -11,25 +11,22 @@ if ! command -v jq >/dev/null; then
 fi
 cmd=$(jq -r '.tool_input.command // ""' <<<"$input") || { echo "merge-gate: could not parse hook input" >&2; exit 2; }
 
-GH_MERGE='(^|[;&|[:space:]])gh[[:space:]]+pr[[:space:]]+merge([[:space:]]|$)'
-# Bypass routes: `gh api .../merge` or `gh -R repo pr merge` (gh flags before `pr`).
-BYPASS='(^|[;&|[:space:]])gh[[:space:]]+(api[[:space:]].*merge|-[^;&|]*[[:space:]]pr[[:space:]]+merge)'
+# Anything merge-like must be exactly the canonical form. That one rule closes every bypass
+# (gh api .../merge, -R/--repo anywhere, GH_REPO=, bash -c / $( ) wrappers, --admin, --auto).
+MERGEISH='pr[[:space:]]+merge([^[:alnum:]_-]|$)|api[^;&|]*/merge'
+CANON='^gh pr merge ([0-9]+) --squash --delete-branch$'
+
 deny() {
   jq -n --arg r "Merge blocked by guardrails: $1. See docs/MERGE_GUARDRAILS.md." \
     '{hookSpecificOutput:{hookEventName:"PreToolUse",permissionDecision:"deny",permissionDecisionReason:$r}}'
   exit 0
 }
 
-grep -Eq "$BYPASS" <<<"$cmd" && deny "only 'gh pr merge <n> --squash --delete-branch' is allowed (no gh api or -R forms)"
-grep -Eq "$GH_MERGE" <<<"$cmd" || exit 0
+grep -Eq "$MERGEISH" <<<"$cmd" || exit 0
+[[ $cmd =~ $CANON ]] || deny "run exactly 'gh pr merge <n> --squash --delete-branch' on its own (no wrappers, flags, or gh api)"
+pr=${BASH_REMATCH[1]}
 
 cd "${CLAUDE_PROJECT_DIR:-.}" || deny "cannot cd to project"
-
-grep -Eq -- '--admin|--auto' <<<"$cmd" && deny "--admin and --auto are not allowed"
-grep -Eq -- '--squash' <<<"$cmd" || deny "use --squash"
-
-pr=$(grep -Eo 'gh[[:space:]]+pr[[:space:]]+merge[[:space:]]+[0-9]+' <<<"$cmd" | grep -Eo '[0-9]+$')
-[ -n "$pr" ] || deny "name the PR number explicitly (gh pr merge <n> --squash --delete-branch)"
 
 info=$(gh pr view "$pr" --json headRefOid,headRefName,baseRefName,state 2>/dev/null) || deny "cannot read PR #$pr"
 head=$(jq -r .headRefOid <<<"$info")

@@ -39,8 +39,9 @@ GitHub Actions (lint, typecheck, unit tests, build) passes on the head commit. I
   - the branch contains `origin/main`,
   - all checks are green,
   - both reviewers' latest verdicts (from the repo owner's account only) are PASS for the current fingerprint.
-- Only the plain `gh pr merge <n>` form is allowed. `gh api …/merge` and `gh -R … pr merge` are blocked. The
-  hook fails closed (blocks) if it can't parse the command.
+- Any merge-like command must be exactly `gh pr merge <n> --squash --delete-branch`, run on its own. Everything else is
+  blocked: `gh api …/merge`, `-R`/`--repo`, `GH_REPO=`, wrappers like `bash -c` or `$( )`. The hook fails closed if it
+  can't parse the command. (A side effect: a `gh api` call whose path contains `/merge` is blocked too, which is intended.)
 - **Limitation until M6:** merging on the GitHub website isn't gated. When the repo goes public, enable
   branch protection on `main` (required CI, no direct pushes), which is free for public repos.
 - After merging: pull `main`, confirm the Vercel production deploy is Ready, smoke-test `/sign-in`, and update `CONTEXT.md`.
