@@ -10,9 +10,9 @@ Colby is replacing his Google Sheet budget tracker with a single-user Next.js + 
 import. v2 = automatic bank sync.
 
 ## Status
-- **Active:** M1 scaffold (M0 done: docs + private repo github.com/colbyzheng/budget, public at M6).
+- **Active:** M1 scaffold: code done (branch m1-scaffold). Waiting on Supabase, Google OAuth, Vercel setup. Repo is private until M6.
 - **Done:** product and plan grilling (all decisions are in SPEC.md).
-- **Next:** M1 = Next.js, Supabase, Drizzle, Google auth, CI, Vercel.
+- **Next:** M2 data model (ask Colby "you or me?" on the schema).
 - **Open questions:** v2 sync provider (Teller / Plaid / iOS Shortcuts / CSV / Gmail); real app name before M6.
 
 ## Key decisions cheat-sheet
@@ -30,8 +30,13 @@ import. v2 = automatic bank sync.
 - Follow CLAUDE.md hard rules. Keep reports short.
 
 ## File map
-_(fill in as code appears)_
-- `SPEC.md`, `PLAN.md`, `CLAUDE.md`, `CONTEXT.md`, `README.md`
+- Docs: `SPEC.md`, `PLAN.md`, `CLAUDE.md`, `CONTEXT.md`, `README.md`
+- `src/db/`: `index.ts` (Drizzle client), `schema.ts` (barrel), `auth-schema.ts` (Better Auth tables). Migrations in `drizzle/`.
+- `src/lib/auth.ts` (Better Auth server; allowlist hook), `auth-client.ts`, `allowlist.ts` (+ test)
+- `src/proxy.ts`: redirects signed-out visitors to `/sign-in` (Next 16 renamed middleware → proxy)
+- `src/app/`: `page.tsx` (home; session behind Suspense), `sign-in/`, `api/auth/[...all]/`
+- `.github/workflows/ci.yml`: lint, typecheck, test, build
+- Next 16 note: `cacheComponents` is on, so session/DB reads must sit behind `<Suspense>`. Read `node_modules/next/dist/docs/` before writing Next code (see AGENTS.md).
 
 ## Commands
-_(added in M1)_
+See CLAUDE.md. Env vars: `.env.example` → `.env.local`.

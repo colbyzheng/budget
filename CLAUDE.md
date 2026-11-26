@@ -5,10 +5,10 @@ Read first: `CONTEXT.md` (current status), then `SPEC.md` (what) and `PLAN.md` (
 
 ## Stack
 Next.js (App Router) + TypeScript (strict) · Tailwind · Supabase Postgres · Drizzle ORM (migrations
-in repo) · Auth: Google (locked to Colby's email) + passkey · Vitest · Playwright · Vercel · GitHub Actions.
+in repo) · Better Auth: Google (allowlist via ALLOWED_EMAILS) + passkey (M6) · Vitest · Playwright · Vercel · GitHub Actions.
 
-## Commands (once M1 exists)
-`npm run dev` · `npm run lint` · `npm run typecheck` · `npm test` · `npm run e2e` · `npm run db:migrate`
+## Commands
+`npm run dev` · `npm run lint` · `npm run typecheck` · `npm test` · `npm run build` · `npm run db:generate` · `npm run db:migrate` (e2e added in M6)
 
 ## Hard rules
 - **Never commit real financial data, `.env*`, or secrets.** The repo is public. Seed/demo data is
