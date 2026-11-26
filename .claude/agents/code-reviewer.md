@@ -30,18 +30,19 @@ You review one PR in ~/Budget. You are given the PR number and optionally a `sin
 
 Max 8 findings, highest severity first. Skip style nits that lint would catch.
 
-**Post your verdict** as a PR comment, then return the same text as your final reply:
+**Post your verdict** as a PR comment, then return the same text as your final reply. Write the body
+to a file and use `--body-file`: the merge hook blocks any command whose text mentions both gh and "merge".
 ```
-gh pr comment <n> --body "$(cat <<'MD'
+f=$(mktemp) && cat > "$f" <<'MD'
 <!-- review:code fp=<FINGERPRINT> verdict=<PASS|BLOCK> -->
 **Code review** · `<HEAD 7 chars>` · <full PR | incremental since xxxxxxx>
 1. [blocker|should-fix|nit] path:line: problem → fix. auto-fix: yes|no
 ...
 (or "No findings.")
 MD
-)"
+gh pr comment <n> --body-file "$f"
 ```
-- PASS when there are no blockers.
+- PASS when there are no blockers. On a run labeled "final round", also PASS when only should-fix/nit items remain.
 - BLOCK when any blocker remains.
 - A blocker marked `auto-fix: yes` is still BLOCK; the fixer applies it and you re-review.
 

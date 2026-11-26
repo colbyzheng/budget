@@ -2,7 +2,13 @@
 
 Every PR goes through this before it merges to `main`. `main` auto-deploys to production.
 Run it with **`/merge-pr <n>`** (`.claude/skills/merge-pr/SKILL.md`). The hook
-`.claude/hooks/merge-gate.sh` blocks `gh pr merge` until steps 2–5 hold for the PR's current content.
+`.claude/hooks/merge-gate.sh` blocks `gh pr merge` until steps 1–5 hold for the PR's current content.
+
+**Two layers:**
+- **GitHub branch protection on `main`** (server-side, applies even to admins and to the web UI):
+  CI check `check` required, branch up to date with main, PR required, no force pushes or deletions, linear history.
+- **The merge-gate hook** (client-side, for agents): adds the two-reviewer requirement. It stops an agent from merging by mistake
+  or skipping the process. It is not a sandbox against deliberate evasion.
 
 ## 1. Before review
 - Small, focused PR. Its title and body say what and why.
@@ -23,7 +29,8 @@ marks it `auto-fix: yes` or `no`.
 ## 3. Auto-fix rounds
 - `review-fixer` applies every `auto-fix: yes` item, runs lint, typecheck and tests, then commits and pushes.
 - Reviewers then re-run **incrementally**, on only what changed since their last review, and post a fresh verdict.
-- At most 2 fix rounds. Anything still blocking goes to Colby.
+- At most 2 fix rounds. Anything still blocking goes to Colby. After his decision, one **final** incremental
+  round runs. Should-fix and nit items left at that point become a `follow-up` issue instead of another loop.
 - `auto-fix: no` covers: Colby-claimed code (pairing protocol), product-behavior changes, and
   breaking or irreversible items. These go to Colby as one list with the recommended choice. They're
   never applied silently.
@@ -39,11 +46,10 @@ GitHub Actions (lint, typecheck, unit tests, build) passes on the head commit. I
   - the branch contains `origin/main`,
   - all checks are green,
   - both reviewers' latest verdicts (from the repo owner's account only) are PASS for the current fingerprint.
-- Any merge-like command must be exactly `gh pr merge <n> --squash --delete-branch`, run on its own. Everything else is
-  blocked: `gh api …/merge`, `-R`/`--repo`, `GH_REPO=`, wrappers like `bash -c` or `$( )`. The hook fails closed if it
-  can't parse the command. (A side effect: a `gh api` call whose path contains `/merge` is blocked too, which is intended.)
-- **Limitation until M6:** merging on the GitHub website isn't gated. When the repo goes public, enable
-  branch protection on `main` (required CI, no direct pushes), which is free for public repos.
+- Any command that mentions both `gh` and `merge` (after dropping quotes and backslashes and joining lines) must be
+  exactly `gh pr merge <n> --squash --delete-branch`, or it's denied. Agents post comments with `--body-file` and commit with `-F`
+  so their text doesn't trip this. The hook fails closed if it can't parse the command, and it checks the PR in the
+  project repo, so run merges from `~/Budget`.
 - After merging: pull `main`, confirm the Vercel production deploy is Ready, smoke-test `/sign-in`, and update `CONTEXT.md`.
 
 ## Token and memory budget

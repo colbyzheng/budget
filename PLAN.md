@@ -11,7 +11,7 @@ Soft target: full v1 by ~Dec 3, 2026 (end of month at the latest).
 | 5 | M6 passkey, demo, README, smoke test |
 
 ## M0 — Docs + repo ✅
-SPEC.md, PLAN.md, CLAUDE.md, CONTEXT.md, README, .gitignore. GitHub repo `budget` (private until M6).
+SPEC.md, PLAN.md, CLAUDE.md, CONTEXT.md, README, .gitignore. GitHub repo `budget` (public since Nov 26; branch protection on `main`).
 
 ## M1 — Scaffold
 Next.js (App Router) + TypeScript strict, Tailwind, Supabase Postgres, Drizzle ORM, Google sign-in
@@ -38,7 +38,6 @@ Candidates for Colby: aggregation queries, budget math, alert threshold logic.
 ## M6 — Polish
 Passkey sign-in, read-only demo user + seed data, CSV/JSON export, README with screenshots and
 architecture, Playwright smoke test (sign in → add transaction → see it on dashboard), pick real name.
-When the repo goes public: enable GitHub branch protection on `main` (required CI check, no direct pushes).
 
 ## v2
 Sync provider, Google Sheet mirror, Apple Cash via iOS Shortcuts, offline queue, rollover.

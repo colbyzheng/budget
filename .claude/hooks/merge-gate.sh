@@ -11,10 +11,14 @@ if ! command -v jq >/dev/null; then
 fi
 cmd=$(jq -r '.tool_input.command // ""' <<<"$input") || { echo "merge-gate: could not parse hook input" >&2; exit 2; }
 
-# Anything merge-like must be exactly the canonical form. That one rule closes every bypass
-# (gh api .../merge, -R/--repo anywhere, GH_REPO=, bash -c / $( ) wrappers, --admin, --auto).
-MERGEISH='pr[[:space:]]+merge([^[:alnum:]_-]|$)|api[^;&|]*/merge'
+# Scope: this stops an agent from merging by mistake or skipping the process. It is not a sandbox
+# against deliberate evasion (e.g. building the word "merge" from variables). The server-side backstop
+# is GitHub branch protection on main (required CI, up to date with main, no force pushes).
+#
+# Rule: normalize the command (drop quotes and backslashes, join lines). If it mentions both `gh` and
+# `merge` in any case, it must be exactly the canonical command. Otherwise it is denied.
 CANON='^gh pr merge ([0-9]+) --squash --delete-branch$'
+norm=$(tr -d "\"'\\" <<<"$cmd" | tr '\n' ' ' | sed -E 's/[[:space:]]+/ /g; s/^ //; s/ $//')
 
 deny() {
   jq -n --arg r "Merge blocked by guardrails: $1. See docs/MERGE_GUARDRAILS.md." \
@@ -22,8 +26,8 @@ deny() {
   exit 0
 }
 
-grep -Eq "$MERGEISH" <<<"$cmd" || exit 0
-[[ $cmd =~ $CANON ]] || deny "run exactly 'gh pr merge <n> --squash --delete-branch' on its own (no wrappers, flags, or gh api)"
+grep -Eiq '(^|[^[:alnum:]_])gh([^[:alnum:]_].*)?merge' <<<"$norm" || exit 0
+[[ $norm =~ $CANON ]] || deny "any gh command mentioning merge must be exactly 'gh pr merge <n> --squash --delete-branch' on its own. Post comments/commit messages with --body-file/-F"
 pr=${BASH_REMATCH[1]}
 
 cd "${CLAUDE_PROJECT_DIR:-.}" || deny "cannot cd to project"

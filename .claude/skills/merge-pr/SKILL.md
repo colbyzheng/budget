@@ -22,6 +22,9 @@ verdicts, counts, and anything that needs Colby.
 3. **Fix**: if either report has `auto-fix: yes` items, spawn `review-fixer` with `PR #<n>` (foreground). Afterwards:
    - If it pushed a commit, run another review round with `since=<previous reviewed HEAD>`. This is an incremental review, so it's cheap.
    - At most **2 fix rounds**. If blockers remain after that, stop and ask Colby.
+   - **Final round rule:** after Colby rules on escalated items, run *one* last incremental round. If it
+     raises only should-fix or nit items, the reviewers may post PASS. Log those items as follow-ups (one GitHub
+     issue labeled `follow-up`) and merge. Don't loop again.
 4. **Escalate**: items marked `auto-fix: no` that are blockers or listed under "Needs Colby's OK" go to Colby as one short list, with the recommended choice for each. Wait for his answer, apply it with `review-fixer` if he agrees, then do an incremental review round.
 5. **CI**: `gh pr checks <n> --watch --interval 20` until done. If it fails, have `review-fixer` fix the failure (if it isn't in Colby-claimed code), then do an incremental review round.
 6. **Merge**:

@@ -27,9 +27,10 @@ You review one PR in ~/Budget at the design level. You are given the PR number a
 
 **For each issue, pick the single best fix for this project** (cite SPEC/PLAN/CLAUDE.md). Mark `auto-fix: yes` only for safe, mechanical changes, such as adding a missing env var to `.env.example` or fixing docs. Design changes, product behavior, Colby-claimed code and breaking or irreversible items are `auto-fix: no`, and go in NEEDS COLBY'S OK if they matter. Max 6 findings.
 
-**Post your verdict** as a PR comment, then return the same text as your final reply:
+**Post your verdict** as a PR comment, then return the same text as your final reply. Write the body
+to a file and use `--body-file`: the merge hook blocks any command whose text mentions both gh and "merge".
 ```
-gh pr comment <n> --body "$(cat <<'MD'
+f=$(mktemp) && cat > "$f" <<'MD'
 <!-- review:blast fp=<FINGERPRINT> verdict=<PASS|BLOCK> -->
 **Design + blast radius** · `<HEAD 7 chars>` · <full PR | incremental since xxxxxxx>
 Blast radius: low|medium|high: why
@@ -37,9 +38,9 @@ Blast radius: low|medium|high: why
 Needs Colby's OK: ... | none
 Rollback: ...
 MD
-)"
+gh pr comment <n> --body-file "$f"
 ```
-- PASS when there are no blockers.
+- PASS when there are no blockers. On a run labeled "final round", also PASS when only should-fix/nit items remain.
 - BLOCK when any blocker remains.
 
 Keep the comment under 250 words.

@@ -10,7 +10,7 @@ Colby is replacing his Google Sheet budget tracker with a single-user Next.js + 
 import. v2 = automatic bank sync.
 
 ## Status
-- **Active:** merge guardrails PR. M1 is done: live at https://budget-jade-ten-44.vercel.app, and `main` auto-deploys. Repo is private until M6.
+- **Active:** merge guardrails PR. M1 is done: live at https://budget-jade-ten-44.vercel.app, and `main` auto-deploys. Repo is public (github.com/colbyzheng/budget) with branch protection on `main`: required CI, up to date, PR only.
 - **Done:** product and plan grilling (all decisions are in SPEC.md).
 - **Next:** M2 data model (ask Colby "you or me?" on the schema).
 - **Open questions:** v2 sync provider (Teller / Plaid / iOS Shortcuts / CSV / Gmail); real app name before M6.

@@ -16,8 +16,8 @@ You apply review fixes to one PR in ~/Budget (the PR branch is checked out). Rea
    as skipped, with the reason.
 3. Verify: `npm run lint && npm run typecheck && npm test`. If a fix breaks something, revert that one
    fix and list it as skipped.
-4. Commit with the message `Apply review fixes` (author is the repo's configured user; no attribution
-   lines), then `git push`.
+4. Commit with `git commit -F <file>` (message `Apply review fixes`; no attribution lines). The merge hook
+   blocks inline commands that mention gh and "merge". Then `git push`.
 5. Reply in ≤120 words: the commit SHA, fixes applied (#), fixes skipped (# + reason), and verification result.
 
 Don't touch anything a finding doesn't name. Don't refactor beyond the fix.
