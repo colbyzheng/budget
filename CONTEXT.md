@@ -10,7 +10,7 @@ Colby is replacing his Google Sheet budget tracker with a single-user Next.js + 
 import. v2 = automatic bank sync.
 
 ## Status
-- **Active:** M1 scaffold: code done (branch m1-scaffold). Waiting on Supabase, Google OAuth, Vercel setup. Repo is private until M6.
+- **Active:** merge guardrails PR. M1 is done: live at https://budget-jade-ten-44.vercel.app, and `main` auto-deploys. Repo is private until M6.
 - **Done:** product and plan grilling (all decisions are in SPEC.md).
 - **Next:** M2 data model (ask Colby "you or me?" on the schema).
 - **Open questions:** v2 sync provider (Teller / Plaid / iOS Shortcuts / CSV / Gmail); real app name before M6.
@@ -36,6 +36,7 @@ import. v2 = automatic bank sync.
 - `src/proxy.ts`: redirects signed-out visitors to `/sign-in` (Next 16 renamed middleware → proxy)
 - `src/app/`: `page.tsx` (home; session behind Suspense), `sign-in/`, `api/auth/[...all]/`
 - `.github/workflows/ci.yml`: lint, typecheck, test, build
+- `docs/MERGE_GUARDRAILS.md` + `.claude/agents/{code-reviewer,blast-radius-reviewer}.md` + `.claude/hooks/merge-gate.sh`: the merge process and its enforcement
 - Next 16 note: `cacheComponents` is on, so session/DB reads must sit behind `<Suspense>`. Read `node_modules/next/dist/docs/` before writing Next code (see AGENTS.md).
 
 ## Commands
