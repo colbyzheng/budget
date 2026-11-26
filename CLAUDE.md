@@ -28,9 +28,9 @@ in repo) · Better Auth: Google (allowlist via ALLOWED_EMAILS) + passkey (M6) ·
 5. End each milestone with a short what/why summary and wait for approval before the next.
 
 ## Merging
-Every merge follows `docs/MERGE_GUARDRAILS.md`: two reviewer subagents (`code-reviewer`,
-`blast-radius-reviewer`), rebase on `origin/main`, green CI, then a review record comment on the PR. A hook
-(`.claude/hooks/merge-gate.sh`) blocks `gh pr merge` until all of these hold for the current head SHA.
+Every merge runs `/merge-pr <n>` per `docs/MERGE_GUARDRAILS.md`: two reviewer subagents (`code-reviewer`,
+`blast-radius-reviewer`) that post verdicts on the PR, `review-fixer` auto-applies safe fixes, rebase, and green CI. A hook
+(`.claude/hooks/merge-gate.sh`) blocks `gh pr merge` until both verdicts are PASS for the current content.
 
 ## Conventions
 - Small PRs, short commit messages, only Colby's name on commits (no Claude attribution).

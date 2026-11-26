@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # PreToolUse(Bash) hook: blocks `gh pr merge` unless docs/MERGE_GUARDRAILS.md steps 3-6 hold
-# for the PR's current head commit. Any other command passes through untouched.
+# for the PR's current content. Any other command passes through untouched.
 set -uo pipefail
 
 cmd=$(jq -r '.tool_input.command // ""')
@@ -36,11 +36,16 @@ checks=$(gh pr checks "$pr" --json name,bucket 2>/dev/null) || deny "cannot read
 bad=$(jq -r '[.[] | select(.bucket != "pass" and .bucket != "skipping") | "\(.name)=\(.bucket)"] | join(", ")' <<<"$checks")
 [ -z "$bad" ] || deny "CI not green: $bad"
 
-# Review record for this exact head SHA.
-body=$(gh pr view "$pr" --json comments --jq '[.comments[].body | select(contains("<!-- merge-guardrails -->"))] | last // ""')
-[ -n "$body" ] || deny "no merge-guardrails review record on the PR"
-grep -q "head: $head" <<<"$body" || deny "review record is for an older commit (head is now ${head:0:7}), so re-review"
-grep -Eq '^code-review: PASS' <<<"$body" || deny "code review did not PASS"
-grep -Eq '^blast-radius: PASS' <<<"$body" || deny "blast-radius review did not PASS"
+# Both reviewers must have posted PASS for the PR's current content fingerprint.
+# The fingerprint (patch-id) survives clean rebases, but any edit to the PR makes old reviews stale.
+fp=$(git diff "$(git merge-base origin/main "$head")" "$head" | git patch-id --stable | cut -d' ' -f1)
+[ -n "$fp" ] || deny "could not compute PR fingerprint"
+comments=$(gh pr view "$pr" --json comments --jq '.comments[].body' 2>/dev/null) || deny "cannot read PR comments"
+for r in code blast; do
+  last=$(grep -Eo "<!-- review:$r fp=[0-9a-f]+ verdict=(PASS|BLOCK) -->" <<<"$comments" | tail -1)
+  [ -n "$last" ] || deny "no $r review on the PR; run /merge-pr $pr"
+  grep -q "fp=$fp " <<<"$last" || deny "latest $r review is for older content (PR changed since), so re-review"
+  grep -q "verdict=PASS" <<<"$last" || deny "$r review verdict is BLOCK"
+done
 
 exit 0
