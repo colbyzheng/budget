@@ -7,6 +7,7 @@
 set -euo pipefail
 cd "$(git rev-parse --show-toplevel)"
 branch=$(git branch --show-current)
+[ -n "$branch" ] || { echo "ERROR: detached HEAD, so check out the PR branch (gh pr checkout <n>)"; exit 1; }
 git fetch -q origin main "$branch"
 [ -z "$(git status --porcelain --untracked-files=no)" ] || { echo "ERROR: uncommitted changes, so commit and push first"; exit 1; }
 [ "$(git rev-parse HEAD)" = "$(git rev-parse "origin/$branch")" ] || { echo "ERROR: local HEAD != origin/$branch, so push first"; exit 1; }

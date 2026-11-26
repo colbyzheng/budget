@@ -16,6 +16,7 @@
     "deny": [
       "Bash(gh pr merge * --admin*)",
       "Bash(gh pr merge * --auto*)",
+      "Bash(gh api *merge*)",
       "Bash(git push --force *)",
       "Bash(git push -f *)",
       "Bash(git push origin main*)"

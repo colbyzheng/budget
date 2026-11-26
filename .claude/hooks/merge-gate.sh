@@ -1,16 +1,27 @@
 #!/usr/bin/env bash
-# PreToolUse(Bash) hook: blocks `gh pr merge` unless docs/MERGE_GUARDRAILS.md steps 3-6 hold
-# for the PR's current content. Any other command passes through untouched.
+# PreToolUse(Bash) hook: blocks `gh pr merge` unless docs/MERGE_GUARDRAILS.md steps 2-5 hold
+# for the PR's current content. Any other command passes through untouched. Fails closed.
 set -uo pipefail
 
-cmd=$(jq -r '.tool_input.command // ""')
-grep -Eq '(^|[;&|[:space:]])gh[[:space:]]+pr[[:space:]]+merge([[:space:]]|$)' <<<"$cmd" || exit 0
+input=$(cat)
+if ! command -v jq >/dev/null; then
+  # Can't parse the command, so block anything merge-related rather than let it through.
+  [[ $input == *merge* ]] && { echo "merge-gate: jq is required; merge blocked" >&2; exit 2; }
+  exit 0
+fi
+cmd=$(jq -r '.tool_input.command // ""' <<<"$input") || { echo "merge-gate: could not parse hook input" >&2; exit 2; }
 
+GH_MERGE='(^|[;&|[:space:]])gh[[:space:]]+pr[[:space:]]+merge([[:space:]]|$)'
+# Bypass routes: `gh api .../merge` or `gh -R repo pr merge` (gh flags before `pr`).
+BYPASS='(^|[;&|[:space:]])gh[[:space:]]+(api[[:space:]].*merge|-[^;&|]*[[:space:]]pr[[:space:]]+merge)'
 deny() {
   jq -n --arg r "Merge blocked by guardrails: $1. See docs/MERGE_GUARDRAILS.md." \
     '{hookSpecificOutput:{hookEventName:"PreToolUse",permissionDecision:"deny",permissionDecisionReason:$r}}'
   exit 0
 }
+
+grep -Eq "$BYPASS" <<<"$cmd" && deny "only 'gh pr merge <n> --squash --delete-branch' is allowed (no gh api or -R forms)"
+grep -Eq "$GH_MERGE" <<<"$cmd" || exit 0
 
 cd "${CLAUDE_PROJECT_DIR:-.}" || deny "cannot cd to project"
 
@@ -40,7 +51,9 @@ bad=$(jq -r '[.[] | select(.bucket != "pass" and .bucket != "skipping") | "\(.na
 # The fingerprint (patch-id) survives clean rebases, but any edit to the PR makes old reviews stale.
 fp=$(git diff "$(git merge-base origin/main "$head")" "$head" | git patch-id --stable | cut -d' ' -f1)
 [ -n "$fp" ] || deny "could not compute PR fingerprint"
-comments=$(gh pr view "$pr" --json comments --jq '.comments[].body' 2>/dev/null) || deny "cannot read PR comments"
+# Only verdicts posted by the repo owner count (anyone could comment once the repo is public).
+owner=$(gh repo view --json owner --jq .owner.login 2>/dev/null) || deny "cannot read repo owner"
+comments=$(gh pr view "$pr" --json comments --jq ".comments[] | select(.author.login == \"$owner\") | .body" 2>/dev/null) || deny "cannot read PR comments"
 for r in code blast; do
   last=$(grep -Eo "<!-- review:$r fp=[0-9a-f]+ verdict=(PASS|BLOCK) -->" <<<"$comments" | tail -1)
   [ -n "$last" ] || deny "no $r review on the PR; run /merge-pr $pr"

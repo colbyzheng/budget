@@ -38,6 +38,7 @@ Candidates for Colby: aggregation queries, budget math, alert threshold logic.
 ## M6 — Polish
 Passkey sign-in, read-only demo user + seed data, CSV/JSON export, README with screenshots and
 architecture, Playwright smoke test (sign in → add transaction → see it on dashboard), pick real name.
+When the repo goes public: enable GitHub branch protection on `main` (required CI check, no direct pushes).
 
 ## v2
 Sync provider, Google Sheet mirror, Apple Cash via iOS Shortcuts, offline queue, rollover.

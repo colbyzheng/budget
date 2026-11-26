@@ -15,7 +15,7 @@ verdicts, counts, and anything that needs Colby.
    - `gh pr checkout <n>` and `git fetch origin main`.
    - If the branch is behind main: `git rebase origin/main`, then `git push --force-with-lease`. Rebase *before* reviewing, so the fingerprint is final.
    - Note `R0=$(git rev-parse HEAD)`.
-   - If `git diff --name-only origin/main...HEAD` shows only `*.md` files, it's a **docs-only** PR: pass `model: "haiku"` to both reviewers.
+   - If `git diff --name-only origin/main...HEAD` shows only `*.md` files **outside `.claude/`** (agent/skill files change the process), it's a **docs-only** PR: pass `model: "haiku"` to both reviewers.
 2. **Review round**: spawn `code-reviewer` and `blast-radius-reviewer` **in parallel, in the background**, using the Agent tool with `subagent_type` set to those names.
    - Prompt: `PR #<n>.` Add `since=<sha>` on later rounds.
    - Wait for both completion notifications. Don't poll.

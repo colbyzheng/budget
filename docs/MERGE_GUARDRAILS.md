@@ -38,7 +38,11 @@ GitHub Actions (lint, typecheck, unit tests, build) passes on the head commit. I
   - the PR is open and targets main,
   - the branch contains `origin/main`,
   - all checks are green,
-  - both reviewers' latest verdicts are PASS for the current fingerprint.
+  - both reviewers' latest verdicts (from the repo owner's account only) are PASS for the current fingerprint.
+- Only the plain `gh pr merge <n>` form is allowed. `gh api …/merge` and `gh -R … pr merge` are blocked. The
+  hook fails closed (blocks) if it can't parse the command.
+- **Limitation until M6:** merging on the GitHub website isn't gated. When the repo goes public, enable
+  branch protection on `main` (required CI, no direct pushes), which is free for public repos.
 - After merging: pull `main`, confirm the Vercel production deploy is Ready, smoke-test `/sign-in`, and update `CONTEXT.md`.
 
 ## Token and memory budget
