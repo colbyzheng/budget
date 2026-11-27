@@ -2,7 +2,7 @@
 
 Every PR goes through this before it merges to `main`. `main` auto-deploys to production.
 Run it with **`/merge-pr <n>`** (`.claude/skills/merge-pr/SKILL.md`). The hook
-`.claude/hooks/merge-gate.sh` blocks `gh pr merge` until steps 1–5 hold for the PR's current content.
+`.claude/hooks/merge-gate.sh` blocks `gh pr merge` until steps 2–5 hold for the PR's current content.
 
 **Two layers:**
 - **GitHub branch protection on `main`** (server-side, applies even to admins and to the web UI):
@@ -50,6 +50,9 @@ GitHub Actions (lint, typecheck, unit tests, build) passes on the head commit. I
   exactly `gh pr merge <n> --squash --delete-branch`, or it's denied. Agents post comments with `--body-file` and commit with `-F`
   so their text doesn't trip this. The hook fails closed if it can't parse the command, and it checks the PR in the
   project repo, so run merges from `~/Budget`.
+- Note: the hook blocks any command that contains both `gh` and the word "merge". Agents posting PR comments must keep that word
+  out of the comment body and the command text (write "land" or "integrate" instead).
+- Verdict comments are posted from the owner's account and are not tamper-proof; branch protection is the backstop.
 - After merging: pull `main`, confirm the Vercel production deploy is Ready, smoke-test `/sign-in`, and update `CONTEXT.md`.
 
 ## Token and memory budget

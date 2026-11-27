@@ -19,5 +19,6 @@ echo "SCOPE: $([ -n "${1:-}" ] && echo "incremental since ${1:0:7}" || echo "ful
 EXCL=(':!package-lock.json' ':!drizzle/meta/**' ':!*.svg' ':!*.ico' ':!*.png')
 git diff --stat=100 "$from" HEAD
 echo "---"
-git diff -U2 "$from" HEAD -- . "${EXCL[@]}" | head -n 1500
-[ "$(git diff -U2 "$from" HEAD -- . "${EXCL[@]}" | wc -l)" -le 1500 ] || echo "[TRUNCATED at 1500 lines; read remaining files directly]"
+diff=$(git diff -U2 "$from" HEAD -- . "${EXCL[@]}")
+printf '%s\n' "$diff" | head -n 1500 || true
+[ "$(printf '%s\n' "$diff" | wc -l)" -le 1500 ] || echo "[TRUNCATED at 1500 lines; read remaining files directly]"

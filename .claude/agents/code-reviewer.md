@@ -31,7 +31,7 @@ You review one PR in ~/Budget. You are given the PR number and optionally a `sin
 Max 8 findings, highest severity first. Skip style nits that lint would catch.
 
 **Post your verdict** as a PR comment, then return the same text as your final reply. Write the body
-to a file and use `--body-file`: the merge hook blocks any command whose text mentions both gh and "merge".
+to a file and use `--body-file`: the hook blocks any command whose text mentions both gh and the word for landing a PR. Keep that word out of the comment body (write "land" or "integrate").
 ```
 f=$(mktemp) && cat > "$f" <<'MD'
 <!-- review:code fp=<FINGERPRINT> verdict=<PASS|BLOCK> -->

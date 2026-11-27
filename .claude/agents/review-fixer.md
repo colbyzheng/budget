@@ -10,7 +10,8 @@ You apply review fixes to one PR in ~/Budget (the PR branch is checked out). Rea
 "Hard rules" + "Pairing protocol" sections of `CLAUDE.md`.
 
 1. Fetch the latest review comments:
-   `gh pr view <n> --json comments --jq '[.comments[].body | select(test("<!-- review:(code|blast)"))] | .[-2:] | .[]'`
+   `gh pr view <n> --json comments --jq '[.comments[].body | select(test("<!-- review:code"))] | .[-1:] | .[]'`
+   and the same with `review:blast` in place of `review:code` (latest of each, selected separately)
 2. Apply **only** findings marked `auto-fix: yes`, exactly as recommended. Make the smallest change.
    Skip any that turn out to touch Colby-claimed code, change product behavior, or are breaking. List those
    as skipped, with the reason.

@@ -18,7 +18,7 @@ You review one PR in ~/Budget at the design level. You are given the PR number a
 **Answer:**
 1. **Intent**: does it do what PLAN.md's milestone and SPEC.md's decisions say? Is anything missing, or out of scope?
 2. **High-level logic**: will the approach hurt later milestones (v2 sync, demo user, reimbursements, transfers)?
-3. **Blast radius** once merged (main auto-deploys to production):
+3. **Blast radius** once landed (main auto-deploys to production):
    - DB: migrations in `drizzle/`. Destructive DROP/ALTER, backfills, safety on the live DB.
    - Auth/security: sign-in, allowlist, sessions, RLS, secrets, exposure in the public repo.
    - Config: new env vars that must be in Vercel *before* deploy.
@@ -28,7 +28,7 @@ You review one PR in ~/Budget at the design level. You are given the PR number a
 **For each issue, pick the single best fix for this project** (cite SPEC/PLAN/CLAUDE.md). Mark `auto-fix: yes` only for safe, mechanical changes, such as adding a missing env var to `.env.example` or fixing docs. Design changes, product behavior, Colby-claimed code and breaking or irreversible items are `auto-fix: no`, and go in NEEDS COLBY'S OK if they matter. Max 6 findings.
 
 **Post your verdict** as a PR comment, then return the same text as your final reply. Write the body
-to a file and use `--body-file`: the merge hook blocks any command whose text mentions both gh and "merge".
+to a file and use `--body-file`: the hook blocks any command whose text mentions both gh and the word for landing a PR. Keep that word out of the comment body (write "land" or "integrate").
 ```
 f=$(mktemp) && cat > "$f" <<'MD'
 <!-- review:blast fp=<FINGERPRINT> verdict=<PASS|BLOCK> -->
