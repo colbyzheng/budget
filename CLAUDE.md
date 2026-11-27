@@ -27,6 +27,11 @@ in repo) · Better Auth: Google (allowlist via ALLOWED_EMAILS) + passkey (M6) ·
 4. Boilerplate (config, scaffolding, UI wiring) is Claude's without asking.
 5. End each milestone with a short what/why summary and wait for approval before the next.
 
+## Merging
+Every merge runs `/merge-pr <n>` per `docs/MERGE_GUARDRAILS.md`: two reviewer subagents (`code-reviewer`,
+`blast-radius-reviewer`) that post verdicts on the PR, `review-fixer` auto-applies safe fixes, rebase, and green CI. A hook
+(`.claude/hooks/merge-gate.sh`) blocks `gh pr merge` until both verdicts are PASS for the current content.
+
 ## Conventions
 - Small PRs, short commit messages, only Colby's name on commits (no Claude attribution).
 - 1–2 tests per PR on the main behavior. Money logic always gets a test.

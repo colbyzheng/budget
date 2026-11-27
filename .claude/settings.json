@@ -1,0 +1,40 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(gh pr merge *)",
+      "Bash(gh pr comment *)",
+      "Bash(gh pr view *)",
+      "Bash(gh pr diff *)",
+      "Bash(gh pr checks *)",
+      "Bash(gh pr checkout *)",
+      "Bash(.claude/scripts/review-diff.sh*)",
+      "Bash(.claude/scripts/fingerprint.sh*)",
+      "Bash(npm run lint)",
+      "Bash(npm run typecheck)",
+      "Bash(npm test)"
+    ],
+    "deny": [
+      "Bash(gh pr merge * --admin*)",
+      "Bash(gh pr merge * --auto*)",
+      "Bash(gh api *merge*)",
+      "Bash(git push --force *)",
+      "Bash(git push -f *)",
+      "Bash(git push origin main*)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/merge-gate.sh",
+            "timeout": 60,
+            "statusMessage": "Checking merge guardrails"
+          }
+        ]
+      }
+    ]
+  }
+}
